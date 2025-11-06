@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Catalogo único</title>
+  <style>
+    body{font-family:Inter, "Poppins",sans-serif; background:linear-gradient(135deg,#ffeef9,#e6f8ff); margin:0; padding:24px; color:#222}
+    .card{max-width:720px; margin:24px auto; background:#fff; padding:18px; border-radius:12px; box-shadow:0 8px 30px rgba(16,24,40,0.06)}
+    h1{margin:0 0 12px; color:#5a3460}
+    .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    input[type=file]{padding:6px}
+    button{padding:10px 14px; border-radius:8px; border:0; cursor:pointer; font-weight:600}
+    .subir{background:linear-gradient(135deg,#30cee7,#9b59b6); color:#fff}
+    .ver{background:#ffd4f0}
+    .eliminar{background:#ff6b6b; color:#fff}
+    .status{margin-top:10px; font-size:14px}
+    #loginOverlay{display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center; height:100vh}
+    #loginOverlay input{padding:8px; width:220px; border-radius:8px; border:1px solid #ccc}
+    .logout{margin-top:12px; background:#aaa; color:#fff; width:100%; padding:10px; border-radius:8px}
+    a.volver{display:inline-block; margin-top:12px; color:#5a3460; text-decoration:none}
+  </style>
+</head>
+<body>
+    <!-- LOGIN -->
+  <div id="loginOverlay">
+    <h2>Acceso Administrador</h2>
+    <input id="userField" placeholder="Usuario" />
+    <input id="passField" type="password" placeholder="Contraseña" />
+    <button id="loginBtn">Ingresar</button>
+  </div>
+  <!-- PANEL -->
+  <div id="adminPanel" style="display:none;">
+    <div class="card">
+      <h1>Panel - Catálogo único</h1>
+      <p>Sube, visualiza o elimina el catálogo (archivo PDF único).</p>
+
+      <form id="formCatalogo" style="display:flex; flex-direction:column; gap:10px;">
+        <label for="archivo">Selecciona archivo PDF</label>
+        <input id="archivo" type="file" accept="application/pdf" />
+        <div class="row">
+          <button id="btnSubir" class="subir" type="button">Subir catálogo</button>
+          <button id="btnVer" class="ver" type="button">Ver catálogo</button>
+          <button id="btnEliminar" class="eliminar" type="button">Eliminar catálogo</button>
+        </div>
+        <div class="status" id="statusText"></div>
+      </form>
+
+      <button id="logoutBtn" class="logout">Cerrar sesión</button>
+      <a class="volver" href="index.html">← Volver al inicio</a>
+    </div>
+  </div>
+
+<script type="module">
+window.addEventListener('DOMContentLoaded', () => {
+
+  // Credenciales simples
+  const adminUser = "Mortega";
+  const adminPass = "Marlyn2025";
+
+  const loginOverlay = document.getElementById('loginOverlay');
+  const adminPanel = document.getElementById('adminPanel');
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  const archivoInput = document.getElementById('archivo');
+  const btnSubir = document.getElementById('btnSubir');
+  const btnVer = document.getElementById('btnVer');
+  const btnEliminar = document.getElementById('btnEliminar');
+  const statusText = document.getElementById('statusText');
+
+  // Mostrar panel si ya autenticado
+  if (localStorage.getItem('adminAuth') === 'true') {
+    loginOverlay.style.display = 'none';
+    adminPanel.style.display = 'block';
+  }
+
+  loginBtn.addEventListener('click', () => {
+    const u = document.getElementById('userField').value.trim();
+    const p = document.getElementById('passField').value.trim();
+    if (u === adminUser && p === adminPass) {
+      localStorage.setItem('adminAuth','true');
+      loginOverlay.style.display = 'none';
+      adminPanel.style.display = 'block';
+    } else {
+      alert('Usuario o contraseña incorrectos');
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('adminAuth');
+    location.reload();
+  });
+
+  // Nombre fijo que usaremos para el archivo en el servidor
+  const TIPO = 'catalogo';            // este será el "tipo" y usaremos "catalogo.pdf" como nombre de archivo
+
+  // SUBIR (renombramos localmente el file a "catalogo.pdf" antes de enviarlo,
+  // así el servidor guardará ese nombre y ver/eliminar será predecible)
+  btnSubir.addEventListener('click', async (e) => {
+    e.preventDefault();
+    statusText.style.color = 'black';
+    const f = archivoInput.files[0];
+    if (!f) {
+      statusText.textContent = 'Selecciona un archivo PDF antes de subir.';
+      statusText.style.color = 'orange';
+      return;
+    }
+    if (f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf')) {
+      statusText.textContent = 'El archivo debe ser PDF.';
+      statusText.style.color = 'orange';
+      return;
+    }
+
+    // Renombrar el archivo en el cliente a "catalogo.pdf" (para que server lo guarde con ese nombre)
+    let renamedFile;
+    try {
+      renamedFile = new File([f], `${TIPO}.pdf`, { type: f.type });
+    } catch (err) {
+      // En navegadores muy antiguos File constructor puede fallar; en ese caso usar el original
+      renamedFile = f;
+      console.warn('No se pudo renombrar el File en el cliente, se enviará con su nombre original.', err);
+    }
+
+    const formData = new FormData();
+    formData.append('file', renamedFile);   // coincide con multer.single("file")
+    formData.append('tipo', TIPO);
+
+    statusText.textContent = 'Subiendo...';
+    try {
+      const resp = await fetch('http://localhost:3000/upload', {
+        method: 'POST',
+        body: formData
+      });
+      if (resp.ok) {
+        statusText.textContent = 'Subido correctamente ✅';
+        statusText.style.color = 'green';
+      } else {
+        const text = await resp.text().catch(()=>null);
+        statusText.textContent = `Error al subir: ${resp.status} ${resp.statusText}`;
+        if (text) statusText.textContent += ` — ${text}`;
+        statusText.style.color = 'red';
+      }
+    } catch (err) {
+      console.error(err);
+      statusText.textContent = 'Error de conexión con el servidor ❌';
+      statusText.style.color = 'red';
+    }
+  });
+
+  // VER
+  btnVer.addEventListener('click', (e) => {
+    e.preventDefault();
+    // Abrimos la ruta estática que sirve /uploads
+    const url = `http://localhost:3000/uploads/${TIPO}.pdf`;
+    window.open(url, '_blank');
+  });
+
+  // ELIMINAR
+  btnEliminar.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!confirm('¿Eliminar el catálogo? Esto borrará el archivo en el servidor (si existe).')) return;
+    statusText.textContent = 'Eliminando...';
+    try {
+      const resp = await fetch(`http://localhost:3000/delete/${TIPO}`, { method: 'DELETE' });
+      if (resp.ok) {
+        statusText.textContent = 'Catálogo eliminado 🗑️';
+        statusText.style.color = 'orange';
+      } else {
+        const txt = await resp.text().catch(()=>null);
+        statusText.textContent = `No se pudo eliminar: ${resp.status} ${resp.statusText}` + (txt?` — ${txt}`:'');
+        statusText.style.color = 'red';
+      }
+    } catch (err) {
+      console.error(err);
+      statusText.textContent = 'Error de conexión al eliminar ❌';
+      statusText.style.color = 'red';
+    }
+  });
+});
+</script>
+  <!-- 👇 al final del archivo -->
+  </script>
+</body>
+</html>

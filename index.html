@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hearts Living</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Meta para redes -->
+  <meta name="description" content="Hearts Living — papelería, velas y ropa con estilo. Detalles hechos con amor." />
+
+  <style>
+    /* ---------------------------
+       RESET & BASE
+       --------------------------- */
+    :root{
+      --bg-1: #fff7fb;
+      --accent-1: #ff9fed;
+      --accent-2: #f6c0e6;
+      --teal: #30cee7;
+      --violet: #9b59b6;
+      --muted: #6b6b6b;
+      --card-bg: rgba(255,255,255,0.85);
+      --glass: rgba(255,255,255,0.6);
+      --radius: 14px;
+      --max-width: 1200px;
+      --shadow: 0 8px 30px rgba(16,24,40,0.08);
+      --soft-shadow: 0 6px 20px rgba(16,24,40,0.06);
+    }
+    * {box-sizing: border-box}
+    html,body{height:100%; margin:0; font-family:"Poppins",sans-serif; background: linear-gradient(135deg,#ffeef9 0%, #e6f8ff 100%); color:#222;}
+    img{max-width:100%; display:block; border-radius:10px;}
+    /* ---------------------------
+   EFECTO HOVER EN IMÁGENES
+   --------------------------- */
+.hero-card img,
+.catalog-item img,
+.grid img,
+.promo .video img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-card img:hover,
+.catalog-item img:hover,
+.grid img:hover,
+.promo .video img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+    a{color:inherit; text-decoration:none}
+    button{font-family:inherit; cursor:pointer}
+
+    /* ---------------------------
+       LAYOUT
+       --------------------------- */
+    .wrap{max-width:var(--max-width); margin:20px auto; padding:0 16px;}
+    header{position:sticky; top:12px; z-index:60; display:flex; justify-content:center; pointer-events:auto}
+    .nav{
+      width:100%;
+      max-width:var(--max-width);
+      background: linear-gradient(90deg,#ffffffcc, #fff1f8cc);
+      border-radius: 16px;
+      display:flex; align-items:center; gap:16px;
+      padding:12px 16px; box-shadow: var(--shadow);
+      align-items:center; justify-content:space-between;
+      backdrop-filter: blur(6px);
+    }
+
+    /* logo / titulo */
+    .brand {
+      display:flex; align-items:center; gap:14px;
+    }
+    .brand .logo {
+      width:56px; height:56px; border-radius:12px;
+      background: linear-gradient(135deg,var(--accent-1),var(--accent-2));
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: var(--soft-shadow);
+      font-size:26px;
+    }
+    .brand h1{margin:0; font-size:18px; line-height:1; color:#4b2a4b; font-weight:700}
+    .brand p{margin:0; font-size:12px; color:var(--muted)}
+
+    /* menu */
+    nav.main-menu{display:flex; gap:8px; align-items:center}
+    .menu-links{display:flex; gap:8px; align-items:center}
+    .menu-links button{background:transparent; border:0; padding:8px 12px; border-radius:10px; font-weight:600; color:#5a3460;}
+    .menu-links button:hover{background:var(--glass); transform:translateY(-2px)}
+
+    .actions{display:flex; gap:8px; align-items:center}
+    .btn-primary{background:linear-gradient(135deg,var(--teal),var(--violet)); color:white; border:0; padding:10px 14px; border-radius:12px; font-weight:700; box-shadow:0 6px 18px rgba(155,89,182,0.18)}
+    .btn-ghost{background:transparent; border:1px solid rgba(90,40,90,0.06); padding:8px 12px; border-radius:10px}
+
+    /* mobile toggle */
+    .hamburger{display:none; width:44px; height:44px; border-radius:10px; background:transparent; border:0; font-size:20px}
+
+    /* hero */
+    .hero{
+      margin-top:18px; display:grid; grid-template-columns:1fr 420px; gap:20px; align-items:center;
+    }
+    .hero-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,250,250,0.85));
+      padding:26px; border-radius:18px; box-shadow:var(--shadow);
+    }
+    .tag{display:inline-block; padding:6px 10px; border-radius:999px; background:linear-gradient(90deg,#ffe6f6,#fff0f0); font-weight:600; font-size:13px; color:#8a2d6d;}
+
+    .hero h2{font-family:'Dancing Script', cursive; font-size:44px; margin:6px 0 6px; color:#6b2b61}
+    .hero p.lead{margin:0 0 12px; color:#4a3a4a}
+
+    .catalog-grid{display:flex; gap:12px; margin-top:12px; align-items:center}
+    .catalog-item{background:var(--card-bg); border-radius:12px; padding:8px; min-width:120px; text-align:center; box-shadow:var(--soft-shadow)}
+    .catalog-item small{display:block; font-weight:600; color:#6b2b61; margin-top:6px}
+
+    /* slider column */
+    .media {
+      display:flex; flex-direction:column; gap:14px;
+    }
+    .slider{
+      height:320px; 
+      border-radius:14px; 
+      overflow:hidden; 
+      position:relative; 
+      box-shadow:var(--shadow);
+      background:linear-gradient(135deg,#fff,#fff5ff);
+    }
+    .slides{display:flex; height:100%; transition:transform 0.3s ease}
+    .slides img{width:100%; height:100%; object-fit:contain; flex-shrink:0}
+
+    .dots{display:flex; gap:6px; justify-content:center; margin-top:8px}
+    .dot{width:10px; height:10px; border-radius:50%; background:#eee4; cursor:pointer; border:2px solid #ffffff55}
+    .dot.active{background:linear-gradient(90deg,#ff9fed,#9b59b6)}
+
+    /* gallery cards */
+    .grid{
+      display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px;
+    }
+    .card{background:var(--card-bg); padding:12px; border-radius:12px; box-shadow:var(--soft-shadow)}
+    .card h3{margin:6px 0 8px; color:#5b2b58}
+    .card p{margin:0; color:var(--muted); font-size:14px}
+
+    /* frases rotativas (estilo moderno) */
+    .marquee {margin-top:18px; padding:12px; border-radius:12px; background:linear-gradient(90deg,#fff0fb,#f0fdff); display:flex; align-items:center; gap:12px; box-shadow:var(--soft-shadow)}
+    .marquee p{margin:0; font-weight:600; color:#7a2f6a}
+
+    /* promo / video */
+    .promo{margin-top:18px; border-radius:12px; padding:14px; display:flex; gap:14px; align-items:center; background:linear-gradient(180deg,#fff3fb,#f2f8ff); box-shadow:var(--soft-shadow)}
+    .promo .video{flex:1; border-radius:12px; overflow:hidden; min-height:160px; background:#000}
+    .promo .texto{flex:1}
+
+    /* footer */
+    footer{margin:28px 0 60px; text-align:center; color:var(--muted); font-size:14px}
+
+    /* whatsapp flotante */
+    .whatsapp-float {
+      position:fixed; right:18px; bottom:18px; z-index:80; display:flex; gap:10px; align-items:center;
+    }
+    .whatsapp-float a{
+      display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px; background:linear-gradient(90deg,#25d366,#1fae5b); color:#fff; box-shadow:0 8px 30px rgba(37,211,102,0.18);
+      font-weight:700; text-decoration:none;
+    }
+
+    /* responsive */
+    @media (max-width: 980px) {
+  .wrap {
+    padding: 0 12px; /* padding horizontal interno, no genera scroll */
+  }
+
+  .nav {
+    max-width: 100%; /* que nunca supere el ancho de la pantalla */
+    padding: 10px 12px; /* padding interno */
+    overflow: hidden;   /* evita que elementos se salgan */
+  }
+
+  /* menú links: opcional para que se acomoden */
+  .menu-links {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+} 
+    @media (max-width:600px){
+  /* Ajustes de hero */
+  .hero{grid-template-columns:1fr; }
+  .hero h2{font-size:34px}
+  .slider{height:220px; overflow:hidden;}
+
+  /* Ajuste de mini-cards debajo del carrusel */
+  .grid {
+    grid-template-columns: 1fr; /* una columna por fila */
+    gap: 12px;
+  }
+
+  .grid img {
+    width: 100%;
+    height: auto; /* mantiene proporción */
+    object-fit: cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Efecto hover para las imágenes de la galería (y hero) */
+  .grid img:hover, 
+  .catalog-item img:hover, 
+  .slides img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+
+  /* Ajustes de promo */
+  .promo{flex-direction:column;}
+
+  /* Ajustes de header/nav */
+  header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  width: 100%; /* Asegura que ocupe todo el ancho */
+  display: flex;
+  justify-content: center;
+  padding: 0 8px; /* Espaciado horizontal */
+}
+
+.nav {
+  width: 100%;
+  max-width: var(--max-width);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  background: linear-gradient(90deg,#ffffffcc, #fff1f8cc);
+  gap: 12px;
+  overflow-x: auto; /* Permite que elementos no se corten */
+}
+
+.nav::-webkit-scrollbar {
+  display: none; /* Oculta scroll horizontal si aparece */
+}
+
+.main-menu {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap; /* Permite que los botones bajen de línea en móvil */
+}
+
+/* Ajuste botón admin para móvil */
+@media (max-width: 600px) {
+  .actions {
+    display: flex;
+    flex-wrap: wrap; /* Que botones bajen y no se corten */
+    gap: 6px;
+  }
+  .hamburger {
+    display: inline-block;
+  }
+}
+}
+
+    /* accesibilidad focus */
+    button:focus, a:focus {outline:3px solid rgba(155,89,182,0.18); outline-offset:3px; border-radius:8px}
+    /* ---------------------------
+   AJUSTE GENERAL RESPONSIVO
+   --------------------------- */
+
+/* HERO / SLIDER */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: 1fr; /* Columna única en tablet y móvil */
+  }
+}
+
+/* Slider y carrusel */
+.slider {
+  width: 100%; /* Asegura que ocupe todo el ancho disponible */
+  height: auto; /* Ajusta altura automáticamente según la imagen */
+  max-height: 900px;
+}
+
+.slides img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Llena el contenedor sin deformarse */
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+
+/* Cards y galería */
+.grid, .catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.card img, .catalog-item img, .promo .video video {
+  width: 100%;
+  height: auto; /* Escala proporcional */
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Promo / Video */
+.promo {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.promo .texto, .promo .video {
+  flex: 1 1 300px; /* Se adapta a pantalla pequeña */
+}
+
+/* Footer */
+footer {
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Ajuste general de imágenes en móvil */
+@media (max-width: 600px) {
+  .slides img, .card img, .catalog-item img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .promo {
+    flex-direction: column;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr; /* Una columna en móvil */
+  }
+}
+.galeria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.galeria-grid figure {
+  background: var(--card-bg);
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: var(--soft-shadow);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.galeria-grid figure img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.galeria-grid figure:hover img {
+  transform: scale(1.05);
+}
+
+.galeria-grid figcaption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <!-- HEADER / NAV -->
+    <header>
+      <div class="nav" role="navigation" aria-label="Navegación principal">
+        <div class="brand" aria-hidden="false">
+          <div class="logo" aria-hidden="true">❤</div>
+          <div>
+            <h1>Hearts Living</h1>
+            <p>• Papelería, velas y ropa navideña con mucho amor</p>
+          </div>
+        </div>
+
+        <nav class="main-menu" aria-label="Menú">
+          <div class="menu-links" role="menubar" aria-hidden="false">
+            <button type="button" onclick="goTo('inicio')">Inicio</button>
+            <button type="button" onclick="goTo('galeria')">Galería</button>
+            <button type="button" onclick="goTo('nosotros')">Sobre Nosotros</button>
+            <button type="button" onclick="goTo('contacto')">Contacto</button>
+          </div>
+
+          <div class="actions">
+            <!-- Descargas rápidas -->
+            <div style="display:flex; gap:8px; align-items:center">
+               <a id="btnDescargar" class="btn-ghost" href="http://localhost:3000/uploads/catalogo.pdf" target="_blank">Descargar Catálogo</a>
+            </div>
+            <button class="btn-primary" onclick="abrirAdmin()">Panel Admin</button>
+            <button class="hamburger" id="hambtn" aria-label="Abrir menú">☰</button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- HERO / INTRO -->
+    <main>
+      <section id="inicio" class="hero" aria-labelledby="bienvenido">
+        <div class="hero-card">
+          <span class="tag">• Envíos Nacionales</span>
+          <h2 id="bienvenido">Bienvenido a Hearts Living</h2>
+          <p class="lead"style="text-align:justify-content">🎁 Donde la creatividad, el arte y los estilos únicos iluminan tus momentos.
+            En Hearts Living, cada detalle está pensado para envolverte en ternura y encanto. 
+            nuestra papelería y accesorios combinan lo adorable con lo profesional, creando experiencias memorables.</p>
+            <p class="lead"style="text-align:justify-content">✨ Para Navidad, deja que la magia cobre vida con artículos encantadores, ropa festiva con estilo y todo lo que necesitas para celebrar con alegría.
+                      ¡Haz que esta temporada brille con corazón!</p>
+
+          <div class="catalog-grid" aria-hidden="false">
+            <div class="catalog-item">
+              <img alt="Icono ropa" src="imagenes\navidad 6.jpg" width="64" height="64" style="border-radius:10px; object-fit:cover;">
+              <small>Ropa Navidad</small>
+            </div>
+            <div class="catalog-item">
+              <img alt="Icono papelería" src="imagenes\IMG-20251027-WA0026.jpg"width="64" height="64" style="border-radius:10px; object-fit:cover;">
+              <small>Papelería</small>
+            </div>
+            <div class="catalog-item">
+              <img alt="Icono velas" src="imagenes\42a56e47022380373f7d0262a626d3bf.jpg" width="64" height="64" style="border-radius:10px; object-fit:cover;">
+              <small>Velas Navidad</small>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button class="btn-primary" onclick="goTo('galeria')">Ver colección</button>
+            <a href="#contacto" style="margin-left:10px; padding:10px 12px;" class="btn-ghost">Contáctanos</a>
+          </div>
+
+          <div style="margin-top:14px; font-size:13px; color:var(--muted)">¿Tienes un pedido personalizado? Escríbenos por WhatsApp o Instagram Y danos el gusto de atenderte.</div>
+        </div>
+
+        <!-- media column: slider + mini galería -->
+        <aside class="media" aria-label="Galería principal">
+          <div class="slider" aria-hidden="false" role="region" aria-label="Slider de imágenes">
+            <div class="slides" id="slides">
+              <!-- Reemplaza las rutas por tus imágenes en hosting (no rutas locales de Windows) -->
+              <img alt="Carrusel 1" src="imagenes\IMG-20251027-WA0003.jpg" />
+              <img alt="Carrusel 2" src="imagenes\IMG-20251027-WA0004.jpg" />
+              <img alt="Carrusel 3" src="imagenes\IMG-20251027-WA0005.jpg" />
+              <img alt="Carrusel 4" src="imagenes\publicidad 3.jpg" />
+            </div>
+          </div>
+
+          <div class="dots" id="dots" aria-hidden="false" role="tablist"></div>
+
+          <div class="grid" aria-live="polite">
+            <div class="card">
+              <img alt="Paper design" src="imagenes\IMG-20251027-WA0006.jpg" />
+              <h3>¡Papelería que Inspira!</h3>
+              <p>Libretas, stickers y agendas — detalles para cada día.</p>
+            </div>
+            <div class="card">
+              <img alt="Velas artesanales" src="imagenes\42a56e47022380373f7d0262a626d3bf.jpg" />
+              <h3>Velas Personalizadas</h3>
+              <p>Aromas suaves y diseños únicos para regalar o ambientar.</p>
+            </div>
+            <div class="card">
+              <img alt="Ropa navideña" src="imagenes\navidad 3.jpg" />
+              <h3>Ropa con Encanto</h3>
+              <p>Prendas nevideñas especiales para ti.</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- FRASES / MARQUEE -->
+      <div class="marquee" aria-hidden="false">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s-8-6.5-8-11a4 4 0 0 1 8-2 4 4 0 0 1 8 2c0 4.5-8 11-8 11z" stroke="#d34da6" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p id="frase-text">🖊️ Escribe tus sueños con tinta de colores. • 🎁 Esta Navidad, regala momentos llenos de magia y papel. • 🕯️ Enciende tu creatividad con Hearts Living.</p>
+      </div>
+
+      <!-- PROMO / VIDEO -->
+      <section class="promo" aria-label="Promoción">
+        <div class="texto">
+          <h3 style="margin:0;color:#6b2b61">Disfrutando de la temporada</h3>
+          <p style="margin-top:6px;color:var(--muted)">Sacos navideños, velas personalizadas y mucho más. Realiza tu pedido y recibe asesoría para regalos increibles.</p>
+        </div>
+        <div class="video" aria-hidden="false">
+          <!-- Si subes un video, reemplaza la src con la ruta pública -->
+          <video autoplay muted loop style="width:100%; height:100%; object-fit:cover;" preload="metadata">
+            <source src="videos\Copos de nieve - Background  Navidad 4k - DX-Studio (2160p, vp9).webm" type="video/mp4">
+            <!-- fallback imagen -->
+            <img alt="Promoción" src="imagenes\IMG-20251027-WA0013.jpg" />
+          </video>
+        </div>
+      </section>
+
+      <!-- GALERÍA AMPLIADA -->
+<section id="galeria" style="margin-top:20px">
+  <h2 style="color:#5b2b58; text-align:center;">Galería</h2>
+  <div class="galeria-grid">
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0013.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0014.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0015.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0016.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0017.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0018.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0019.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0020.jpg"alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0021.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0022.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0023.jpg"alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0024.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\IMG-20251027-WA0025.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+        <figure>
+      <img src="imagenes\IMG-20251027-WA0027.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+        <figure>
+      <img src="imagenes\IMG-20251027-WA0028.jpg" alt="artículos papelería">
+      <figcaption>artículos papelería</figcaption>
+    </figure>
+    <div style="grid-column: 1 / -1; text-align: center; margin: 30px 0; font-weight: bold; font-size: 1.2em; color: #5b2b58;">
+  🎄¡Los siguientes artículos solo están disponibles durante la temporada navideña!🎁
+</div>
+    <figure>
+      <img src="imagenes\navidad 6.jpg" alt="temporada navideña">
+      <figcaption>temporada navideña</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\navidad 7.jpg" alt="temporada navideña">
+      <figcaption>temporada navideña</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\navidad 1.jpg" alt="temporada navideña">
+      <figcaption>temporada navideña</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\navidad 5.jpg" alt="temporada navideña">
+      <figcaption>temporada navideña</figcaption>
+    </figure>
+    <figure>
+      <img src="imagenes\galeria 4.jpg" alt="temporada navideña">
+      <figcaption>temporada navideña</figcaption>
+    </figure>
+  </div>
+</section>
+      <!-- NOSOTROS -->
+      <section id="nosotros" style="margin-top:20px">
+        <h2 style="color:#5b2b58">Sobre Nosotros</h2>
+        <div style="margin-top:12px; background:linear-gradient(180deg,#fff,#fff8fb); padding:14px; border-radius:12px; box-shadow:var(--soft-shadow)">
+          <p style="margin:0 0 8px; color:var(--muted);text-align:justify-content">Nuestra tienda nació en uno de los momentos más difíciles que hemos vivido como sociedad: en plena pandemia. 
+             En ese entonces , enfrentando día a día una realidad dolorosa, donde la vida se apagaba sin previo aviso por una enfermedad invisible y desconocida. </p>
+          <p style="margin:0 0 8px; color:var(--muted);text-align:justify-content">En medio del cansancio, la incertidumbre y la tristeza, surgió la necesidad de aferrarse a algo que brindara un poco de color, ternura y humanidad. 
+            Así nació este emprendimiento: como una salida emocional, como un espacio para crear algo bello en medio del caos.</p>
+          <p style="margin:0 0 8px; color:var(--muted);text-align:justify-content">Pensé en mis colegas, en todo el personal de salud que, como yo, estaba dejando cuerpo y alma en cada jornada. Quise diseñar productos que los hicieran sentirse especiales, únicos, visibles. 
+            Que un simple lapicero, una libreta o un accesorio pudieran ser un pequeño recordatorio de que nuestra labor importa, y también lo hace nuestra alegría. </p>
+          <p style="margin:0 0 8px; color:var(--muted);text-align:justify-content">Cada artículo que encuentras aquí está pensado con cariño para ti, que das tanto de ti cada día. 
+            Son detalles con un toque tierno, amable y profesional, que ayudan a diferenciarte en tu trabajo diario, sin perder tu esencia.</p>
+          <p style="margin:0; font-weight:600; color:#6b2b61">Gracias por ser parte de Hearts Living.💙</p>
+        </div>
+      </section>
+
+      <!-- CONTACTO -->
+      <section id="contacto" style="margin-top:20px">
+        <h2 style="color:#5b2b58">Contacto</h2>
+        <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap">
+          <div style="flex:1; min-width:240px; background:var(--card-bg); padding:12px; border-radius:12px; box-shadow:var(--soft-shadow)">
+            <p style="margin:0 0 6px"><strong>Instagram:</strong> <a href="https://instagram.com/hearts_living" target="_blank" rel="noopener">@hearts_living</a></p>
+            <p style="margin:0 0 6px"><strong>Email:</strong> <a href="mailto:marlynortega155@gmail.com">marlynortega155@gmail.com</a></p>
+            <p style="margin:0 0 6px"><strong>WhatsApp:</strong> <a href="https://wa.me/573173092106" target="_blank">+57 317 309 2106</a></p>
+            <p style="margin:0"><strong>Dirección:</strong> Carrera 3 #12-164, Barrio Bellavista, Ipiales - Nariño</p>
+          </div>
+
+          <div style="flex:1; min-width:240px; background:linear-gradient(90deg,#fff0fb,#f2f8ff); padding:12px; border-radius:12px; box-shadow:var(--soft-shadow);">
+            <h4 style="margin:0 0 6px;color:#6b2b61">Descarga catálogos</h4>
+            <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap">
+              <a class="btn-ghost" href="http://localhost:3000/uploads/catalogo.pdf" target="_blank">Descargar Catálogo (PDF)</a>
+            </div>
+            <p style="margin-top:8px; color:var(--muted); font-size:13px">¡Catalogo actualizado!.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        &copy; 2025 Hearts Living • Diseñado con ❤️ • <small style="color:var(--muted)">Todos los derechos reservados</small>
+      </footer>
+    </main>
+  </div>
+
+  <!-- WhatsApp flotante -->
+  <div class="whatsapp-float" aria-hidden="false">
+    <a href="https://wa.me/573173092106" target="_blank" rel="noopener" aria-label="Enviar WhatsApp a Hearts Living">💬 Escríbenos</a>
+  </div>
+
+  <!-- =========================
+       SCRIPTS
+       ========================= -->
+  <script>
+    // Navegación: mostrar sección
+    function goTo(id){
+      // desplaza suavemente al elemento y marca como foco
+      const el = document.getElementById(id);
+      if(el){
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        // para accesibilidad: focus para screenreaders
+        el.setAttribute('tabindex','-1');
+        el.focus({preventScroll:true});
+      }
+    }
+
+    // Admin (placeholder)
+    function abrirAdmin(){
+      // Redirige a la página admin (crear admin.html si lo necesitas)
+      window.location.href = 'admin.html';
+    }
+
+    // Slider automático y dots
+    (function(){
+      const slidesWrap = document.getElementById('slides');
+      const dotsWrap = document.getElementById('dots');
+      if(!slidesWrap) return;
+      const slides = Array.from(slidesWrap.children);
+      let idx = 0;
+      // crear dots
+      slides.forEach((_,i)=>{
+        const d = document.createElement('button');
+        d.className='dot';
+        d.setAttribute('aria-label', 'Ir a imagen '+(i+1));
+        d.addEventListener('click', ()=>{ idx = i; update(); resetInterval(); });
+        dotsWrap.appendChild(d);
+      });
+
+      function update(){
+        slidesWrap.style.transform = 'translateX(-'+(idx*100)+'%)';
+        Array.from(dotsWrap.children).forEach((dot,i)=> dot.classList.toggle('active', i===idx));
+      }
+      update();
+
+      // autoplay con pausa al hover
+      let interval = setInterval(()=>{ idx = (idx+1) % slides.length; update(); }, 3500);
+      function resetInterval(){ clearInterval(interval); interval = setInterval(()=>{ idx = (idx+1) % slides.length; update(); }, 3500); }
+
+      slidesWrap.addEventListener('mouseenter', ()=> clearInterval(interval));
+      slidesWrap.addEventListener('mouseleave', resetInterval);
+    })();
+
+    // Marquee simple (texto rotativo)
+    (function(){
+      const phrases = [
+        "🖊️ Escribe tus sueños con tinta de colores.",
+        "🎁 Esta Navidad, regala momentos llenos de magia y papel.",
+        "📒 La inspiración comienza con una buena libreta.",
+        "🕯️ Enciende tu creatividad con Hearts Living."
+      ];
+      let i = 0;
+      const el = document.getElementById('frase-text');
+      if(!el) return;
+      setInterval(()=>{ i = (i+1) % phrases.length; el.textContent = phrases[i]; }, 3500);
+    })();
+
+    // Hamburger toggle para móvil (muestra enlaces como alert simple)
+    (function(){
+      const hamb = document.getElementById('hambtn');
+      if(!hamb) return;
+      hamb.addEventListener('click', ()=>{
+        // menú simple: mostrar opciones nativas para móvil
+        const opt = ["Inicio","Galería","Sobre Nosotros","Contacto","Descargar Catálogo Ropa","Descargar Catálogo Papelería","Descargar Catálogo Velas"];
+        const choice = prompt("Menú rápido:\n1 Inicio\n2 Galería\n3 Sobre Nosotros\n4 Contacto\n5 Catálogo Ropa\n6 Catálogo Papelería\n7 Catálogo Velas\n\nIngresa el número:");
+        const n = parseInt(choice);
+        if(!n || n<1 || n>7) return;
+        const actions = [
+          ()=>goTo('inicio'),
+          ()=>goTo('galeria'),
+          ()=>goTo('nosotros'),
+          ()=>goTo('contacto'),
+          ()=>window.location.href='archivos/catalogo-papeleria.pdf',
+        ];
+        actions[n-1] && actions[n-1]();
+      })
+    })();
+  </script>
+</body>
+</html>
