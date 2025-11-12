@@ -18,10 +18,10 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // ⚠️ Render no mantiene carpetas locales como /uploads
-//    Así que no usamos una carpeta persistente, sino /tmp
-app.use("/uploads", express.static("/tmp"));
+//    Por eso servimos desde /tmp (temporal)
+app.use("/tmp", express.static("/tmp"));
 
-// ⚙️ Configurar multer para guardar en /tmp (válido en Render)
+// ⚙️ Configurar multer para guardar archivos temporalmente en /tmp
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "/tmp"),
   filename: (req, file, cb) => cb(null, file.originalname)
@@ -30,7 +30,9 @@ const upload = multer({ storage });
 
 // 🔗 Conexión a PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://postgres:tu_contraseña@localhost/catalogosdb",
+  connectionString:
+    process.env.DATABASE_URL ||
+    "postgresql://postgres:tu_contraseña@localhost/catalogosdb",
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
@@ -39,45 +41,52 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// 📤 Subir archivos
+// 📤 Subir archivos PDF
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No se subió ningún archivo" });
+    }
+
     const { tipo } = req.body;
     const nombreArchivo = req.file.filename;
-    const url = `${req.protocol}://${req.get("host")}/uploads/${nombreArchivo}`;
+    const url = `${req.protocol}://${req.get("host")}/tmp/${nombreArchivo}`;
 
-    // Guardar o actualizar registro en la base de datos
+    // Guardar o actualizar registro en PostgreSQL
     await pool.query(
-      "INSERT INTO catalogos (tipo, nombre, url) VALUES ($1, $2, $3) ON CONFLICT (tipo) DO UPDATE SET nombre = $2, url = $3",
+      `INSERT INTO catalogos (tipo, nombre, url)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (tipo)
+       DO UPDATE SET nombre = $2, url = $3`,
       [tipo, nombreArchivo, url]
     );
 
     res.json({ message: "Archivo subido correctamente ✅", url });
   } catch (error) {
-    console.error("Error al subir archivo:", error);
+    console.error("❌ Error al subir archivo:", error);
     res.status(500).json({ error: "Error en el servidor" });
   }
 });
 
-// 🗑️ Eliminar archivos
+// 🗑️ Eliminar archivos PDF
 app.delete("/delete/:tipo", async (req, res) => {
   const { tipo } = req.params;
-  const filePath = path.join("/tmp", `${tipo}.pdf`); // ✅ corregido
+  const filePath = path.join("/tmp", `${tipo}.pdf`);
 
   try {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
-      console.log(`Archivo eliminado: ${filePath}`);
+      console.log(`🗑️ Archivo eliminado: ${filePath}`);
     }
 
     await pool.query("DELETE FROM catalogos WHERE tipo = $1", [tipo]);
     res.json({ message: "Catálogo eliminado correctamente 🗑️" });
   } catch (error) {
-    console.error("Error al eliminar catálogo:", error);
+    console.error("❌ Error al eliminar catálogo:", error);
     res.status(500).json({ error: "Error al eliminar catálogo" });
   }
 });
 
 // 🚀 Iniciar servidor
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Servidor en puerto ${port}`));
+app.listen(port, () => console.log(`✅ Servidor en puerto ${port}`));
