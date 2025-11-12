@@ -128,7 +128,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     statusText.textContent = 'Subiendo...';
     try {
-      const resp = await fetch('http://localhost:3000/upload', {
+      const resp = await fetch("https://hearsliving-venq.onrender.com/upload", {
         method: 'POST',
         body: formData
       });
@@ -152,7 +152,7 @@ window.addEventListener('DOMContentLoaded', () => {
   btnVer.addEventListener('click', (e) => {
     e.preventDefault();
     // Abrimos la ruta estática que sirve /uploads
-    const url = `http://localhost:3000/uploads/${TIPO}.pdf`;
+    const url = `"https://hearsliving-venq.onrender.com/upload${TIPO}.pdf`;
     window.open(url, '_blank');
   });
 
@@ -162,7 +162,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!confirm('¿Eliminar el catálogo? Esto borrará el archivo en el servidor (si existe).')) return;
     statusText.textContent = 'Eliminando...';
     try {
-      const resp = await fetch(`http://localhost:3000/delete/${TIPO}`, { method: 'DELETE' });
+      const resp = await fetch(`"https://hearsliving-venq.onrender.com/upload${TIPO}`, { method: 'DELETE' });
       if (resp.ok) {
         statusText.textContent = 'Catálogo eliminado 🗑️';
         statusText.style.color = 'orange';
