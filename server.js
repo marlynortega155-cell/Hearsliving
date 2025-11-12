@@ -71,6 +71,14 @@ app.delete("/delete/:tipo", async (req, res) => {
   }
 });
 
+pp.use(express.static(__dirname)); 
+
+// Ruta principal: mostrar index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Iniciar servidor
 app.listen(3000, () => console.log("Servidor en http://localhost:3000"));
 // Nota: Asegúrate de tener una tabla "catalogos" en tu base de datos PostgreSQL con las columnas adecuadas.
 // La tabla puede crearse con la siguiente consulta SQL:
