@@ -17,12 +17,12 @@ app.use(express.json());
 // 📁 Servir archivos estáticos (HTML, imágenes, etc.)
 app.use(express.static(__dirname));
 
-// 📂 Servir la carpeta uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// ❌ QUITAMOS la línea que servía /uploads, porque Render no la usa
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Configurar multer
+// ⚙️ Configurar multer: usar carpeta temporal en Render
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
+  destination: (req, file, cb) => cb(null, "/tmp"),
   filename: (req, file, cb) => cb(null, file.originalname)
 });
 const upload = multer({ storage });
@@ -33,7 +33,7 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// 🚀 Ruta principal: sirve el index.html
+// 🚀 Ruta principal
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -43,14 +43,18 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const { tipo } = req.body;
     const nombreArchivo = req.file.filename;
-    const url = `${req.protocol}://${req.get("host")}/uploads/${nombreArchivo}`;
+
+    // ⚠️ No generamos una URL pública porque /tmp no es accesible desde fuera
+    const urlTemporal = `/tmp/${nombreArchivo}`;
 
     await pool.query(
-      "INSERT INTO catalogos (tipo, nombre, url) VALUES ($1, $2, $3) ON CONFLICT (tipo) DO UPDATE SET nombre = $2, url = $3",
-      [tipo, nombreArchivo, url]
+      `INSERT INTO catalogos (tipo, nombre, url)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (tipo) DO UPDATE SET nombre = $2, url = $3`,
+      [tipo, nombreArchivo, urlTemporal]
     );
 
-    res.json({ message: "Archivo subido correctamente ✅", url });
+    res.json({ message: "Archivo subido correctamente ✅", url: urlTemporal });
   } catch (error) {
     console.error("Error al subir archivo:", error);
     res.status(500).json({ error: "Error en el servidor" });
@@ -60,7 +64,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 // 🗑️ Eliminar archivos
 app.delete("/delete/:tipo", async (req, res) => {
   const { tipo } = req.params;
-  const filePath = path.join(__dirname, "uploads", `${tipo}.pdf`);
+  const filePath = path.join("/tmp", `${tipo}.pdf`);
 
   try {
     if (fs.existsSync(filePath)) {
