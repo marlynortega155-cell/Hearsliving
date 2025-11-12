@@ -23,11 +23,8 @@ const upload = multer({ storage });
 
 // Conexión a PostgreSQL
 const pool = new Pool({
-  user: "postgres",
-  password: "tu_contraseña",
-  host: "localhost",
-  database: "catalogosdb",
-  port: 5432
+  connectionString: process.env.DATABASE_URL || "postgresql://hearsliving_db_user:9dP1XXznHWEtCSi8RxFKvRig6q2T0VAx@dpg-d493h8ur433s73acu8b0-a/hearsliving_db",
+  ssl: { rejectUnauthorized: false }
 });
 
 // Ruta para subir archivos
