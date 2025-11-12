@@ -14,13 +14,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 📁 Servir archivos estáticos (HTML, imágenes, etc.)
+// 📁 Servir archivos estáticos (HTML, CSS, JS)
 app.use(express.static(__dirname));
 
-// ❌ QUITAMOS la línea que servía /uploads, porque Render no la usa
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// ⚠️ Render no mantiene carpetas locales como /uploads
+//    Así que no usamos una carpeta persistente, sino /tmp
+app.use("/uploads", express.static("/tmp"));
 
-// ⚙️ Configurar multer: usar carpeta temporal en Render
+// ⚙️ Configurar multer para guardar en /tmp (válido en Render)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "/tmp"),
   filename: (req, file, cb) => cb(null, file.originalname)
@@ -33,7 +34,7 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// 🚀 Ruta principal
+// 🚀 Página principal
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -43,18 +44,15 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const { tipo } = req.body;
     const nombreArchivo = req.file.filename;
+    const url = `${req.protocol}://${req.get("host")}/uploads/${nombreArchivo}`;
 
-    // ⚠️ No generamos una URL pública porque /tmp no es accesible desde fuera
-    const urlTemporal = `/tmp/${nombreArchivo}`;
-
+    // Guardar o actualizar registro en la base de datos
     await pool.query(
-      `INSERT INTO catalogos (tipo, nombre, url)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (tipo) DO UPDATE SET nombre = $2, url = $3`,
-      [tipo, nombreArchivo, urlTemporal]
+      "INSERT INTO catalogos (tipo, nombre, url) VALUES ($1, $2, $3) ON CONFLICT (tipo) DO UPDATE SET nombre = $2, url = $3",
+      [tipo, nombreArchivo, url]
     );
 
-    res.json({ message: "Archivo subido correctamente ✅", url: urlTemporal });
+    res.json({ message: "Archivo subido correctamente ✅", url });
   } catch (error) {
     console.error("Error al subir archivo:", error);
     res.status(500).json({ error: "Error en el servidor" });
@@ -64,7 +62,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 // 🗑️ Eliminar archivos
 app.delete("/delete/:tipo", async (req, res) => {
   const { tipo } = req.params;
-  const filePath = path.join("/tmp", `${tipo}.pdf`);
+  const filePath = path.join("/tmp", `${tipo}.pdf`); // ✅ corregido
 
   try {
     if (fs.existsSync(filePath)) {
@@ -80,5 +78,6 @@ app.delete("/delete/:tipo", async (req, res) => {
   }
 });
 
+// 🚀 Iniciar servidor
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Servidor en puerto ${port}`));
